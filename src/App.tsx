@@ -1,19 +1,19 @@
-import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import ProfilePage from "./pages/profilePage/ProfilePage";
 import UsersPage from "./pages/users/UsersPage";
+import { Box } from "@mui/material";
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
-      <Routes>
-        {/* Página de perfil */}
-        <Route path="/users" element={<UsersPage />} />
-      </Routes>
-      <Routes>
-        {/* Página de perfil */}
-        <Route path="/profile/:id" element={<ProfilePage />} />
-      </Routes>
+      <Navbar />
+      <Box sx={{ ml: 250, p: 3 }}>
+        <Routes>
+          <Route path="/family" element={<UsersPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+        </Routes>
+      </Box>
     </Router>
   );
 };
