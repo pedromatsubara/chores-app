@@ -13,3 +13,7 @@ export const fetchUsers = async (): Promise<User[]> => {
   const response = await axios.get<User[]>(`${API_URL}users`);
   return response.data;
 };
+
+export const deleteUser = async (userId: string): Promise<void> => {
+  await axios.delete(`${API_URL}users/${userId}`);
+};

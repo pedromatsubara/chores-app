@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert, Avatar, IconButton } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress,
+  Alert,
+  Avatar,
+  IconButton,
+} from "@mui/material";
+import { Visibility, Edit, Delete } from "@mui/icons-material";
 import { User } from "../../interfaces/userInterface/userList";
-import { fetchUsers } from "../../services/userService/userService"; // Importe a função do seu service
-import { Delete, Edit } from "@mui/icons-material";
+import { deleteUser, fetchUsers } from "../../services/userService/userService";
+import { useNavigate } from "react-router-dom";
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Função para buscar todos os usuários
     const loadUsers = async () => {
       try {
-        const fetchedUsers = await fetchUsers(); // Usando a função do service
+        const fetchedUsers = await fetchUsers();
         setUsers(fetchedUsers);
       } catch (err) {
         setError("Erro ao carregar os usuários.");
@@ -25,17 +40,24 @@ const UserList: React.FC = () => {
     loadUsers();
   }, []);
 
-  // Função de edição (a ser implementada)
-  const handleEdit = (userId: number) => {
-    console.log(`Editar usuário com ID: ${userId}`);
-    // Lógica de edição (ex: abrir modal ou redirecionar para página de edição)
+  const handleView = (userId: string) => {
+    navigate(`/profile/${userId}`);
   };
 
-  // Função de exclusão (a ser implementada)
-  const handleDelete = (userId: number) => {
-    console.log(`Deletar usuário com ID: ${userId}`);
-    // Lógica de exclusão (ex: chamada de API para excluir o usuário)
+  const handleEdit = (userId: string) => {
+    console.log(`Editar usuário com ID: ${userId}`);
   };
+
+  const handleDelete = async (userId: string) => {
+    try {
+      await deleteUser(userId);
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+    } catch (err) {
+      setError("Erro ao deletar o usuário.");
+    }
+  };
+
+  
 
   return (
     <Container>
@@ -45,7 +67,6 @@ const UserList: React.FC = () => {
 
       {loading && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
-
       {!loading && !error && (
         <TableContainer component={Paper}>
           <Table>
@@ -57,30 +78,12 @@ const UserList: React.FC = () => {
                 <TableCell>Email</TableCell>
                 <TableCell>Endereço</TableCell>
                 <TableCell>Telefone</TableCell>
-                <TableCell>Ações</TableCell> {/* Coluna de ações */}
+                <TableCell>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <Avatar src={user.avatarUrl} alt={user.name} />
-                  </TableCell>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.address}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>
-                    {/* Ícones de ação */}
-                    <IconButton onClick={() => handleEdit(user.id)} color="primary">
-                      <Edit />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(user.id)} color="secondary">
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+                <UserTableRow key={user.id} user={user} handleEdit={handleEdit} handleView={handleView} handleDelete={handleDelete}/>
               ))}
             </TableBody>
           </Table>
@@ -89,5 +92,36 @@ const UserList: React.FC = () => {
     </Container>
   );
 };
+
+interface UserTableProps {
+  user: User;
+  handleView: (userId: string) => void;
+  handleEdit: (userId: string) => void;
+  handleDelete: (userId: string) => void;
+}
+
+const UserTableRow = ({ user, handleView, handleEdit, handleDelete}:UserTableProps) => (
+  <TableRow>
+    <TableCell>
+      <Avatar src={user.avatarUrl} alt={user.name} />
+    </TableCell>
+    <TableCell>{user.id}</TableCell>
+    <TableCell>{user.name}</TableCell>
+    <TableCell>{user.email}</TableCell>
+    <TableCell>{user.address}</TableCell>
+    <TableCell>{user.phone}</TableCell>
+    <TableCell>
+      <IconButton onClick={() => handleView(user.id)} color="primary">
+        <Visibility />
+      </IconButton>
+      <IconButton onClick={() => handleEdit(user.id)} color="primary">
+        <Edit />
+      </IconButton>
+      <IconButton onClick={() => handleDelete(user.id)} color="secondary">
+        <Delete />
+      </IconButton>
+    </TableCell>
+  </TableRow>
+);
 
 export default UserList;

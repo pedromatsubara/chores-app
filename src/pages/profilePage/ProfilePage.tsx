@@ -13,7 +13,7 @@ import { fetchUserProfile } from "../../services/userService/userService";
 import { UserProfile } from "../../interfaces/userInterface/userProfile";
 import { useParams } from "react-router-dom";
 
-const ProfilePage: React.FC = () => {
+const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
